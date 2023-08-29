@@ -1,0 +1,115 @@
+﻿@page "/search-guest/{businessId:int}"
+
+@using RoomCharges.Data
+@using RoomCharges.Services
+@inject BusinessConfigurationService BusinessService
+@inject ReservationSearchService ReservationSearchService
+@inject NavigationManager NavigationManager
+@inject BusinessMenuService BusinessMenuService;
+
+<h3>Search Guest for @BusinessName</h3>
+<EditForm Model="@Reservation" OnValidSubmit="@SearchReservation">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-6 col-xs-12">
+                <label>Search all resorts</label>
+                <InputCheckbox class="form-control" @bind-Value="Reservation.AllResorts" />
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <label>Room Number</label>
+                <InputText class="form-control" @bind-Value="Reservation.RoomNumber" />
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <label>Last Name</label>
+                <InputText class="form-control" @bind-Value="Reservation.LastName" />
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <label>First Name</label>
+                <InputText class="form-control" @bind-Value="Reservation.FirstName" />
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <button type="submit" class="btn btn-primary btn-block">
+                    @if (spinningSearch)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    }
+
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@if (ShowResults)
+{
+    if (!SearchResults.Any())
+    {
+        <h3>No Reservations</h3>
+    }
+    else
+    {
+        <h3>Search Results</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Room Number</th>
+                    @if (ShowResort)
+                    {
+                        <th>Resort</th>
+                    }
+                </tr>
+            </thead>
+            @foreach (var searchResult in SearchResults)
+            {
+                <tr>
+                    <td>
+                        <a href="/charge-guest/@BusinessID/@searchResult.ReservationID/@searchResult.ReservationNumber/@searchResult.LastFirstName" class="btn btn-outline-primary btn-block" type="button">Select</a>
+                    </td>
+                    <td>@searchResult.LastFirstName</td>
+                    <td>@searchResult.RoomNumber</td>
+                    @if (ShowResort)
+                    {
+                        <td>@searchResult.Site</td>
+                    }
+                </tr>
+            }
+        </table>
+    }
+}
+
+@code {
+    [Parameter]
+    public int BusinessID { get; set; }
+
+    private string BusinessName;
+    public SearchReservation Reservation { get; set; } = new SearchReservation { DefaultResort = RoomCharges.Models.Site.Peak8 };
+    public List<Reservation> SearchResults { get; set; }
+    public bool ShowResults { get; set; }
+    public bool ShowResort { get; set; }
+    private bool spinningSearch = false;
+
+    protected override void OnInitialized()
+    {
+        var business = BusinessService.GetBusinessConfiguration(BusinessID);
+        BusinessName = business.Name;
+        var resort = business.Site;
+
+        Reservation = new SearchReservation { DefaultResort = resort };
+        ShowResults = false;
+        BusinessMenuService.SelectedBusinessID = BusinessID;
+        BusinessMenuService.NotifyChanged();
+    }
+
+    private async void SearchReservation()
+    {
+        spinningSearch = true;
+        SearchResults = await ReservationSearchService.SearchReservations(Reservation);
+        ShowResults = true;
+        ShowResort = Reservation.AllResorts;
+        spinningSearch = false;
+        StateHasChanged();
+    }
+}

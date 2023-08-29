@@ -1,0 +1,197 @@
+﻿@page "/charge-guest/{businessId:int}/{reservationId:int}/{reservationNumber}/{guestName}"
+@using RoomCharges.Data
+@using RoomCharges.Services
+
+@inject FolioService FolioService
+@inject EmailService EmailService
+@inject BusinessConfigurationService BusinessConfigurationService
+
+<h3>Charge @GuestName for @BusinessName</h3>
+
+<div>
+    <div>
+        Res #: @ReservationNumber
+    </div>
+    <div>
+        <a href="" @onclick="() => ViewFolio()" @onclick:preventDefault class="btn btn-outline-primary">
+            @if (spinningFolio)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            @(showFolio?"Hide Folio":"Show Folio")
+        </a>
+    </div>
+    @if (showFolio)
+    {
+        if (folioTransactions.Any())
+        {
+            <div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Transaction Date</th>
+                            <th>Description</th>
+                            <th>Employee ID</th>
+                            <th>Reference</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in folioTransactions)
+                        {
+                            <tr>
+                                <td>@transaction.TransactionDate</td>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.UserId</td>
+                                <td>@transaction.Reference</td>
+                                <td>@transaction.Amount.ToString("C2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div>No Transactions</div>
+        }
+    }
+</div>
+
+<div>
+    <EditForm Model="@folioCharge" OnValidSubmit="@SubmitCharge">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-xs-12">
+                    <label>Amount</label>
+                    <InputNumber class="form-control" @bind-Value="folioCharge.Amount" />
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <label>Employee ID</label>
+                    <InputText type="password" class="form-control" @bind-Value="folioCharge.EmployeeID" pattern="[0-9]*"/>
+                </div>
+                @if (allowTip)
+                {
+                    <div class="col-md-6 col-xs-12">
+                        <label>Tip?</label>
+                        <InputCheckbox class="form-control" @bind-Value="folioCharge.Tip" />
+                    </div>
+                }
+                <div class="col-md-6 col-xs-12">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        @if (spinningCharge)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        }
+
+                        Submit Charge
+                    </button>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@if (showResult)
+{
+    <div class="modal fade show" role="dialog" style="display:block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@(chargeResult.Success?"Success!":"Error")</h4>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="() => CloseModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    @chargeResult.Message
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn @(chargeResult.Success?"btn-success":"btn-danger")" data-dismiss="modal" @onclick="() => CloseModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter]
+    public int BusinessID { get; set; }
+    [Parameter]
+    public int ReservationID { get; set; }
+    [Parameter]
+    public string ReservationNumber { get; set; }
+    [Parameter]
+    public string GuestName { get; set; }
+
+    private string BusinessName;
+    private bool allowTip;
+
+    private bool showFolio;
+    private List<RoomCharges.Models.FolioTransaction> folioTransactions;
+
+    private FolioCharge folioCharge = new FolioCharge();
+    private bool showResult;
+    private ChargeResult chargeResult;
+
+    private bool spinningFolio = false;
+    private bool spinningCharge = false;
+
+    protected override void OnInitialized()
+    {
+        var business = BusinessConfigurationService.GetBusinessConfiguration(BusinessID);
+        BusinessName = business.Name;
+        allowTip = business.AllowTip;
+
+        folioCharge = new FolioCharge { ReservationID = ReservationID, BusinessID = BusinessID, Tip = false };
+    }
+
+    private async Task ViewFolio()
+    {
+        spinningFolio = true;
+        if (showFolio)
+        {
+            showFolio = false;
+        }
+        else
+        {
+            //Set Folio object
+            folioTransactions = await FolioService.GetFolioTransactions(ReservationID);
+            showFolio = true;
+        }
+        spinningFolio = false;
+        StateHasChanged();
+    }
+
+    private async Task SubmitCharge()
+    {
+        spinningCharge = true;
+
+        //Call service to submit this charge. Handle errors
+        chargeResult = await FolioService.SubmitCharge(folioCharge);
+        showResult = true;
+        if (showFolio)
+        {
+            folioTransactions = await FolioService.GetFolioTransactions(ReservationID);
+        }
+        if (chargeResult.Success)
+        {
+            _ = await EmailService.SendFolioChargeSuccessEmail(folioCharge, GuestName);
+            folioCharge.Tip = false;
+            folioCharge.Amount = null;
+            folioCharge.EmployeeID = "";
+        }
+        else
+        {
+            folioCharge.EmployeeID = "";
+        }
+        spinningCharge = false;
+
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        showResult = false;
+        StateHasChanged();
+    }
+}

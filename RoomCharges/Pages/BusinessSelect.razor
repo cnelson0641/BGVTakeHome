@@ -1,0 +1,38 @@
+﻿@page "/"
+
+@using RoomCharges.Data
+@using RoomCharges.Services
+@inject BusinessConfigurationService BusinessService;
+
+<h3>Select your business</h3>
+
+@if (businesses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        @foreach (var business in businesses)
+        {
+            <div class="col-sm-12 col-lg-4 card">
+
+                <div class="card-body">
+                    <h1 class="card-title text-center">@business.Name</h1>
+                    <a href="/search-guest/@business.ID" class="btn btn-outline-primary btn-block stretched-link" type="button">Select</a>
+                </div>
+
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    private List<BusinessConfiguration> businesses;
+
+    protected override void OnInitialized()
+    {
+        businesses = BusinessService.GetBusinessConfigurations();
+    }
+}
