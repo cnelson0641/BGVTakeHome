@@ -4,7 +4,9 @@
 Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
 
 ## 9/5/23
-Updated README with dev notes; updated gitignore to ignore vscode files.
+- Updated README with dev notes; updated gitignore to ignore vscode files.
+- Implemented Get Folio
+- Implemented Add Folio Transaction
 
 # Dev Notes
 
