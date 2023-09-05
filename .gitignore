@@ -9,3 +9,6 @@ RoomCharges/obj/
 
 # VScode
 .vscode/
+
+# DB
+RoomCharges/RoomCharges.db

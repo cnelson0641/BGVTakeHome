@@ -7,6 +7,7 @@ namespace RoomCharges.Services
 {
     public class EmailService{
         public async Task<bool> SendFolioChargeSuccessEmail(FolioCharge folioCharge, string guestName){
+            return true;
             throw new NotImplementedException("Prospect is to implement");
         }
     }
