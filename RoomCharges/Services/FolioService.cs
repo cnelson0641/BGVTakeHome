@@ -56,7 +56,32 @@ namespace RoomCharges.Services
 
         public async Task<List<FolioTransaction>> GetFolioTransactions(int reservationID)
         {
-            throw new NotImplementedException("Prospect is to implement");
+            using var connection = new SqliteConnection(ConnectionString);
+            SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
+
+            int folioId = (await GetFolio(reservationID)).FolioId;
+
+            try
+            {
+                if (connection.State == ConnectionState.Closed)
+                {
+                    connection.Open();
+                }
+
+                List<FolioTransaction> result = (await connection.QueryAsync<FolioTransaction>($"SELECT * FROM FolioTransactions ft WHERE ft.FolioId = {folioId};")).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new();
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Open)
+                {
+                    connection.Close();
+                }
+            }
         }
 
         public async Task<ChargeResult> SubmitCharge(FolioCharge folioCharge)
