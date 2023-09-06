@@ -13,6 +13,7 @@ Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
 ## Dev Environment Setup
 - Install VS Code ( https://code.visualstudio.com/download )
 - Install dotnet SDK 6.0 ( https://dotnet.microsoft.com/en-us/download )
+- Install c# dev kit for VS Code ( https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit )
 - Install RestSharp for dotnet
   > dotnet add package RestSharp --version 110.2.0
 - Install SQLite viewer ( https://dotnet.microsoft.com/en-us/download )
