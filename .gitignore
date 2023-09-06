@@ -1,14 +1,16 @@
 # From BGV
 .DS_Store
-
 RoomCharges/.vs/
-
 RoomCharges/bin/
-
 RoomCharges/obj/
 
 # VScode
 .vscode/
 
 # DB
-RoomCharges/RoomCharges.db
+RoomCharges/Data/RoomCharges.db
+
+# For email test
+TestEmailService/.vs/
+TestEmailService/bin/
+TestEmailService/obj/
