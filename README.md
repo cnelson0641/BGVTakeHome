@@ -17,6 +17,7 @@ Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
 - Install RestSharp for dotnet
   > dotnet add package RestSharp --version 110.2.0
 - Install SQLite viewer ( https://dotnet.microsoft.com/en-us/download )
+- Sign up for Mailgun, get an API key, and register cnelson0641@gmail.com as an authorized recipient
 - Reboot (because Windows)
 
 ## Build and Run
@@ -26,6 +27,8 @@ Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
   > cd RoomCharges
 - Build the project
   > dotnet build
+- Set the Mailgun API key env var
+  > $env:MAILGUN_API_KEY='value'
 - Run the app
   > dotnet run
 

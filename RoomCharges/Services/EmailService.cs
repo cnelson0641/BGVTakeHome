@@ -9,8 +9,8 @@ namespace RoomCharges.Services
 {
     public class EmailService{
         public async Task<bool> SendFolioChargeSuccessEmail(FolioCharge folioCharge, string guestName){
-			// Get api key and endpoint from settings
-			String apiKey = Environment.GetEnvironmentVariable("MAILGUN_API_KEY");
+			// Get api key, endpoint, and email parameters
+			String apiKey = getMailgunApiKey();
 			String endpoint = "sandbox2247aa0598a74c0e82b71c774aa388fe.mailgun.org";
 			String from = "BGV Admin <bgvadmin@" + endpoint + ">";
 			String to = "cnelson0641@gmail.com";
@@ -46,5 +46,15 @@ namespace RoomCharges.Services
 			// Return if request was successful
 			return result.IsSuccessful;
         }
+
+		public String getMailgunApiKey(){
+			String apiKey = Environment.GetEnvironmentVariable("MAILGUN_API_KEY");
+
+			// If api key is null, fail
+			if (apiKey == null) {
+				throw new Exception("MAILGUN_API_KEY environment variable not set");
+			}
+			return apiKey;
+		}
     }
 }
