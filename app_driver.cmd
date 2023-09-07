@@ -1,0 +1,2 @@
+cd .\RoomCharges\
+dotnet run

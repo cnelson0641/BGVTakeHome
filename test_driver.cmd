@@ -1,0 +1,2 @@
+cd .\TestEmailService\
+dotnet test
