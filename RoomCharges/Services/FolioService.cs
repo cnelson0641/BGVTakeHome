@@ -113,7 +113,13 @@ namespace RoomCharges.Services
 
             // Get description and reference
             String description = business.Name;
-            String reference = user.FirstName.Substring(0, 1) + user.LastName;
+            String reference   = user.FirstName.Substring(0, 1) + user.LastName;
+
+            // Get the current date as a string in form mm/dd/yyyy
+            String date = DateTime.Now.ToString("M/d/yyyy");
+
+            // Get the folioID from the reservationID
+            int folioID = (await GetFolio(folioCharge.ReservationID)).FolioId;
 
             // Write to db
             using var connection = new SqliteConnection(ConnectionString);
@@ -125,12 +131,6 @@ namespace RoomCharges.Services
                 {
                     connection.Open();
                 }
-                // Get the current date as a string in form mm/dd/yyyy
-                String date = DateTime.Now.ToString("M/d/yyyy");
-
-                // Get the folioID from the reservationID
-                int folioID = (await GetFolio(folioCharge.ReservationID)).FolioId;
-
                 // Insert into FolioTransactions
                 int rowsAffected = await connection.ExecuteAsync($"INSERT INTO FolioTransactions (TransactionDate, Description, Amount, UserID, FolioID, Reference) VALUES ('{date}', '{description}', {folioCharge.Amount}, {folioCharge.EmployeeID}, {folioID}, '{reference}');");
                 if (rowsAffected == 1)
