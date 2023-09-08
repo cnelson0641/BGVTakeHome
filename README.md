@@ -30,15 +30,6 @@ Project is feature complete after implementing the Email Service and adding a te
 - Run the tests, which currently test the email functionality
   > cmd.exe /c app_driver.cmd
 
-## Test email service
-- Open PowerShell session and set the MailGun API Key
-  > $Env:MAILGUN_API_KEY = "<api_key>"
-- Cd to Test directory
-  > cd TestEmailService 
-- Run tests
-  > dotnet test
-
-
 ## View app and db
 - View the app at https://localhost:5001/
 - View the DB using 'DB Browser' program and open 'RoomCharges.db' in RoomCharges/Data/ dir
