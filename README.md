@@ -8,6 +8,9 @@ Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
 - Implemented Get Folio
 - Implemented Add Folio Transaction
 
+## 9/6/23
+Project is feature complete after implementing the Email Service and adding a test.  Run via the steps below, making sure to add your Mailgun API key.
+
 # Dev Notes
 
 ## Dev Environment Setup
@@ -21,16 +24,11 @@ Cloned repo from https://github.com/TimZander/BGVTakeHome and created README.
 - Reboot (because Windows)
 
 ## Build and Run
-- Open new PowerShell session and verify dotnet 6.0 is installed
-  > dotnet --list-sdks
-- Change directories to RoomCharges
-  > cd RoomCharges
-- Build the project
-  > dotnet build
-- Set the Mailgun API key env var
-  > $env:MAILGUN_API_KEY='value'
-- Run the app
-  > dotnet run
+- Edit the gitignored file MAILGUN_API_KEY.txt with your api key
+- Run the application, which runs a webserver at https://localhost:5001/
+  > cmd.exe /c app_driver.cmd
+- Run the tests, which currently test the email functionality
+  > cmd.exe /c app_driver.cmd
 
 ## Test email service
 - Open PowerShell session and set the MailGun API Key
